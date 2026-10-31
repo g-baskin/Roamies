@@ -21,6 +21,19 @@ There is no linter configured yet.
 Releases: push a `v*` tag (or run `.github/workflows/release.yml` by hand). It builds a signed, notarized
 macOS DMG (Apple silicon and Intel) and an unsigned Windows installer into a draft GitHub release.
 
+## Running the app locally (macOS)
+
+- Don't test permissions with `target/debug/roamies` run from an agent's shell: it's unsigned and macOS
+  credits Microphone, Screen Recording, Accessibility and Files to the parent app (e.g. GG Coder), so
+  switches in System Settings never stick.
+- Instead: `TAURI_BUNDLES=app ./build.sh` (about 20 min; needs `cargo install tauri-cli --version "^2" --locked`),
+  then `ditto src-tauri/target/release/bundle/macos/Roamies.app /Applications/Roamies.app` and
+  `open /Applications/Roamies.app`.
+- The build ends with "no private key" (`TAURI_SIGNING_PRIVATE_KEY`) when signing the updater archive; that's
+  expected locally and `Roamies.app` is still built.
+- Without a Developer ID certificate the app is ad-hoc signed, so every rebuild resets its permissions.
+- Settings live in `~/.gg/sidekick.json`; once `onboarded` is true, rerun setup from the menu bar's "Setup Guide…".
+
 ## Rules
 
 - Every tool that touches files, commands, URLs or other apps goes through `showcase/tauri/sidecar/safety.mjs`
